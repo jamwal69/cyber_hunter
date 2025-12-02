@@ -1,0 +1,17 @@
+[project]
+name = "cyber_hunter"
+version = "1.0.0"
+description = "Automated cybersecurity job spider for Greenhouse and Lever boards"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "scrapy>=2.11.0",
+    "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "flake8",
+]

@@ -1,0 +1,5 @@
+# Output files will be saved here
+# This file ensures the directory exists in git
+*.json
+*.csv
+!.gitkeep

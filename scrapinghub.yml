@@ -1,0 +1,15 @@
+# Scrapinghub/Zyte deployment configuration
+# Get your project ID from: https://app.zyte.com/p/YOUR_PROJECT_ID
+
+project: YOUR_PROJECT_ID
+
+# Stack configuration for Zyte Scrapy Cloud
+stack: scrapy:2.11
+
+# Requirements for the project
+requirements:
+  file: requirements.txt
+
+# Spider settings can be overridden here
+# settings:
+#   LOG_LEVEL: INFO

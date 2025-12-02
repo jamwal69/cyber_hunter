@@ -1,0 +1,5 @@
+# Core dependencies
+scrapy>=2.11.0
+
+# Optional: For Discord notifications
+requests>=2.28.0
