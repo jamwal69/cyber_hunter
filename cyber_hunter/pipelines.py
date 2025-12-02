@@ -18,19 +18,24 @@ class CyberJobPipeline:
     - Validates required fields
     - Adds metadata
     - Deduplicates jobs
+    - Logs India-accessible and intern alerts
     """
 
     def __init__(self):
         self.seen_urls = set()
         self.jobs_count = 0
+        self.india_jobs = 0
+        self.intern_jobs = 0
 
     def open_spider(self, spider):
         self.seen_urls = set()
         self.jobs_count = 0
-        spider.logger.info("🔍 CyberJobPipeline initialized - Starting hunt for security jobs!")
+        self.india_jobs = 0
+        self.intern_jobs = 0
+        spider.logger.info("🔍 CyberJobPipeline v3.0 initialized - Hunting India-accessible security jobs!")
 
     def close_spider(self, spider):
-        spider.logger.info(f"✅ Hunt complete! Found {self.jobs_count} cybersecurity jobs.")
+        spider.logger.info(f"✅ Hunt complete! {self.jobs_count} jobs | {self.india_jobs} India-accessible | {self.intern_jobs} Intern/Entry")
 
     def process_item(self, item, spider):
         # Validate required fields
@@ -44,8 +49,9 @@ class CyberJobPipeline:
             raise DropItem(f"Duplicate job: {item['url']}")
         self.seen_urls.add(item['url'])
 
-        # Add scrape timestamp
-        item['scraped_at'] = datetime.now(timezone.utc).isoformat()
+        # Add scrape timestamp if not present
+        if not item.get('scraped_at'):
+            item['scraped_at'] = datetime.now(timezone.utc).isoformat()
 
         # Clean up location
         if item.get('location'):
@@ -53,22 +59,19 @@ class CyberJobPipeline:
         else:
             item['location'] = 'Not specified'
 
-        # Flag remote positions
-        location_lower = (item.get('location') or '').lower()
-        title_lower = (item.get('title') or '').lower()
-        item['is_remote'] = any(kw in location_lower or kw in title_lower 
-                                for kw in ['remote', 'work from home', 'wfh', 'anywhere'])
-
-        # Flag intern/entry-level positions
-        intern_keywords = ['intern', 'internship', 'fresher', 'junior', 'entry', 
-                          'early career', 'associate', 'graduate', 'new grad']
-        item['is_intern'] = any(kw in title_lower for kw in intern_keywords)
-
         self.jobs_count += 1
         
         # Log exciting finds
-        if item['is_intern']:
+        if item.get('is_india_accessible'):
+            self.india_jobs += 1
+            spider.logger.info(f"🇮🇳 INDIA ACCESSIBLE: {item['title']} at {item['company']} ({item['location']})")
+        
+        if item.get('is_intern'):
+            self.intern_jobs += 1
             spider.logger.info(f"🎯 INTERN ALERT: {item['title']} at {item['company']}")
+        
+        if item.get('is_yc_company'):
+            spider.logger.info(f"🚀 YC COMPANY: {item['title']} at {item['company']}")
         
         return item
 
